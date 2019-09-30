@@ -39,7 +39,7 @@ function [EEG] = simpletrim(EEG, varargin)
     [T, EEG2] = evalc('pop_select(EEG2, ''point'', [winStart winStop]);');
     EEG2 = simpleevent2channel(EEG2, 'ChannelName', 'EventMarkers2', 'Suppress', 'True');
     
-    if (isequal(EEG2.data(find(strcmpi({EEG2.chanlocs.labels}, 'EventMarkers'),1),:), EEG2.data(find(strcmpi({EEG2.chanlocs.labels}, 'EventMarkers2'),1),:))) % event markers stay in the correct space 
+    if (nansum(abs(EEG2.data(find(strcmpi({EEG2.chanlocs.labels}, 'EventMarkers'),1),:) - EEG2.data(find(strcmpi({EEG2.chanlocs.labels}, 'EventMarkers2'),1),:))) == 0) % event markers stay in the correct space 
         [T, EEG] = evalc('pop_select(EEG, ''point'', [winStart winStop]);');
     else
         error('Error at simpletrim(). pop_select() bug detected where removal of beginning of dataset corrupts event markers. Please update EEGLAB.');

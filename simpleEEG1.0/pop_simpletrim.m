@@ -14,8 +14,8 @@ function [OUTEEG, com] = pop_simpletrim(EEG)
                 beep
             else
 
-                winstart = EEG.times(EEG.event(1).latency)/1000;
-                winstop = (EEG.times(end) - EEG.times(EEG.event(end).latency))/1000;
+                winstart = EEG.times(ceil(EEG.event(1).latency))/1000;
+                winstop = (EEG.times(end) - EEG.times(floor(EEG.event(end).latency)))/1000;
                 
                 g1 = [0.75 0.5 ];
                 s1 = [1];
