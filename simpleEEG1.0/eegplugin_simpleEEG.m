@@ -73,11 +73,11 @@ function eegplugin_simpleEEG(fig,try_strings,catch_strings)
     uimenu( submenu, 'label', 'Smooth ERP', 'separator','off','callback', '[ERP ALLERP LASTCOM]=pop_simplesmooth(ERP, ALLERP);');
     uimenu( submenu, 'label', 'Subtract ERP', 'separator','off','callback', '[ERP LASTCOM]=pop_simplesubtractERP(ERP);');
     uimenu( submenu, 'label', 'Compute ERP Spectral Power', 'separator','off','callback', '[ERP LASTCOM]=pop_simplespectral(ERP);');
+    uimenu( submenu, 'label', 'Grand Average ALLERP', 'separator','off','callback', '[ERP LASTCOM]=pop_xgrandaverage(ALLERP);');
     
     uimenu( submenu, 'label', '*** Plotting Tools ***', 'separator','on','userdata','startup:off;continuous:off;epoch:off;study:off;erpset:off');
     uimenu( submenu, 'label', 'Plot ERP Array', 'separator','off','callback', 'pop_plotERParray(ERP);');
     uimenu( submenu, 'label', 'Egg Head Plot', 'separator','off', 'callback', 'pop_eggheadplot;');
-    uimenu( submenu, 'label', 'Grand Average ALLERP', 'separator','off','callback', '[ERP LASTCOM]=pop_xgrandaverage(ALLERP);');
     uimenu( submenu, 'label', 'Plot ALLERP Array', 'separator','off', 'callback', '[LASTCOM]=pop_compareERParray(ALLERP);');
     uimenu( submenu, 'label', 'Plot ALLERP Side by Side', 'separator','off', 'callback', '[LASTCOM]=pop_plotparticipantsaschannels(ALLERP);');
 
