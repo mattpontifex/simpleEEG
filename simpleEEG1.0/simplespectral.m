@@ -175,7 +175,7 @@ function [EEG, com] = simplespectral(EEG, varargin)
         if (r(1).Winsize == 0)
            r(1).Winsize = 3; 
         end
-        com = sprintf('%s = simplespectral(%s, ''Design'', ''%s'', ''Unitpower'', ''%s'', ''Output'', ''%s'', ''Frequencies'', %s, ''Padratio'', %s, ''Winsize'', %d);', inputname(1), inputname(1), r(1).Design, r(1).Unitpower, r(1).Output, makematrixarraystr(r(1).Frequencies), num2str(fix(r(1).Padratio/8)), r(1).Winsize);
+        com = sprintf('%s = simplespectral(%s, ''Design'', ''%s'', ''Unitpower'', ''%s'', ''Output'', ''%s'', ''Frequencies'', %s, ''Padratio'', %s, ''Winsize'', %d);', inputname(1), inputname(1), r(1).Design, r(1).Unitpower, r(1).Output, makematrixarraystr(r(1).Frequencies), num2str(fix(r(1).Padratio)), r(1).Winsize);
     else
         % check window size
         if (r(1).Winsize == 0)
@@ -213,6 +213,9 @@ function [EEG, com] = simplespectral(EEG, varargin)
             tic    
 
             % hack to always generate the output matrix of the correct size
+            if (num2str(fix(r(1).Padratio/8)) == 0)
+                r(1).Padratio = 1;
+            end
             [T, pspectr, frequencyout] = evalc(sprintf('simpleEEGFFT(fileindata(1,:,1),''SamplingRate'', EEG.srate, ''Unitpower'', ''%s'', ''Frequencies'', %s, ''Bins'', %s, ''Maxwin'', %s);', r(1).Unitpower, makematrixarraystr([r(1).Frequencies]), num2str(fix(r(1).Padratio/8)), num2str(r(1).Winsize)));
             outmatrix = NaN(size(fileindata,1), numel(frequencyout), size(fileindata,3)); % channel x frequency x epoch
 
