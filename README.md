@@ -18,4 +18,6 @@ folder.
 Once you restart EEGLAB, along the EEGLAB toolbar you should now see a label for "Simple EEG" that contains
 a set of generally useful EEG and ERP processing tools.
 
-<p align="center"><img src="/screencaps/screencap_EEGLABGUI.png?raw=true" width="200" alt="screencap EEGLABGUI"><img src="/screencaps/screencap_SimpleEEGGUI.png?raw=true" width="400" alt="screencap screen cap SimpleEEGGUI"></p>
+<p align="center"><img src="/screencaps/screencap_EEGLABGUI.png?raw=true" width="300" alt="screencap EEGLABGUI"></p>
+
+<p align="center"><img src="/screencaps/screencap_SimpleEEGGUI.png?raw=true" width="400" alt="screencap screen cap SimpleEEGGUI"></p>
