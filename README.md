@@ -8,6 +8,7 @@ utilizes custom functions to mimic the output of defaut functions but using more
 eliminate potential errors and ERPLAB popups. Each function, when run, will also output equivalent code
 that can be run with a script or function.
 
+
 Installation
 ------------
 To use these functions, click the "Clone or download" button on the right and then select "Download ZIP".
@@ -16,3 +17,5 @@ folder.
 
 Once you restart EEGLAB, along the EEGLAB toolbar you should now see a label for "Simple EEG" that contains
 a set of generally useful EEG and ERP processing tools.
+
+<p align="center"><img src="/screencaps/screencap_EEGLABGUI.png?raw=true" width="300" alt="screencap EEGLABGUI"><img src="/screencaps/screencap_SimpleEEGGUI.png?raw=true" width="300" alt="screencap screen cap SimpleEEGGUI"></p>
