@@ -47,10 +47,15 @@ function plotERParray(ERP, varargin)
     
     if isempty(guiSize)
         try
-              set(0,'units','pixels')
-              guiSize = get(0,'screensize');
-              guiSize(2) = guiSize(4)*0.2;
-              guiSize(4) = guiSize(4)*0.9;
+            set(0,'units','pixels')
+            guiSize = get(0,'screensize');
+            origguiSize = guiSize;
+            viewW = guiSize(3)*0.95;
+            viewH = guiSize(4)*0.9;
+            guiSize(1)=(origguiSize(3)-viewW)/2;
+            guiSize(2)=((origguiSize(4)-viewH)/2)+((origguiSize(4)-viewH)/8);
+            guiSize(3)=viewW;
+            guiSize(4)=viewH;
         catch
             guiSize = [200,200,1000,800];
         end
@@ -75,9 +80,7 @@ function plotERParray(ERP, varargin)
                 tempmatrix(end+1) = temp(cC);
             end
         end
-        disp('in')
     else
-        disp('out')
         fullmatrix = {'M1','CB1','O3','O1','OZ','O2','O4','CB2','M2','PO9','PO7','PO5','PO3','POZ','PO4','PO6','PO8','PO10','P7','P5','P3','P1','PZ','P2','P4','P6','P8','TP7','CP5','CP3','CP1','CPZ','CP2','CP4','CP6','TP8','T7','C5','C3','C1','CZ','C2','C4','C6','T8','FT7','FC5','FC3','FC1','FCZ','FC2','FC4','FC6','FT8','F7','F5','F3','F1','FZ','F2','F4','F6','F8','AF9','AF7','AF5','AF3','AFZ','AF4','AF6','AF8','AF10','VEOG','HEOG','FP3','FP1','FPZ','FP2','FP4','FP6','FP8'};
     end
     fullmatrixcheck = zeros(1,size(fullmatrix,2));
