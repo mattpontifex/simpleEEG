@@ -242,6 +242,7 @@ function [EEG] = visualinspecttrials(EEG, varargin)
     
     changeplot;
     uiwait(handles.fig1);
+    [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''eeglab2erplab'')'); %synchronize artifact databases
     
     function changeplot
         % Update text
@@ -447,7 +448,6 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         outmatrix(isnan(outmatrix)) = 0;
     end
     function closefcn(hObject,eventdata,handles)
-        [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''eeglab2erplab'')'); %synchronize artifact databases
         delete(hObject);
     end
 end

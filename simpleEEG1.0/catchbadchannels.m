@@ -131,7 +131,11 @@ function [badchannels] = catchbadchannels(EEG, varargin)
         tempmat = INEEG.data;
         for rN=1:size(INEEG.data, 1)
             if (badchanlist(rN) == 0)
-                tempmat(rN,:,:) = gaussmooth(tempmat(rN,:,:), 'Window', floor(100 /((1/EEG.srate)*1000)), 'Sigma', 2.0);
+                try,
+                    tempmat(rN,:,:) = gaussmooth(tempmat(rN,:,:), 'Window', floor(100 /((1/EEG.srate)*1000)), 'Sigma', 2.0);
+                catch,
+                    boolpass = 1;
+                end
             end
             [step, strLength] = commandwaitbar(rN, WinStop, step, nSteps, strLength); % progress bar update
         end

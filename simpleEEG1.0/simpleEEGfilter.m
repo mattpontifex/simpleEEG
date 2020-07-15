@@ -167,6 +167,8 @@ function EEG = simpleEEGfilter(EEG, varargin)
     if ((strcmpi(r.Design, 'FIR')) | (strcmpi(r.Design, 'Windowed Symmetric FIR'))) & ~(strcmpi(r(1).Filter, 'Notch'))
         EEG = pop_firws(EEG, 'ftype', lower(r(1).Filter), 'fcutoff', nonzeros([ lowcut, highcut ])', 'wtype', 'hamming', 'forder', r(1).Order);
         %EEG = pop_firws(EEG, 'ftype', 'bandpass', 'fcutoff', [0.5, 30], 'wtype', 'hamming', 'forder', 3*fix(EEG.srate/0.5));
+    elseif (strcmpi(r(1).Filter, 'Notch'))
+        EEG = pop_eegfiltnew(EEG, 'locutoff', lowcut, 'hicutoff', highcut, 'revfilt', 1);
     else
         EEG = basicfilter(EEG, r.Channels, lowcut, highcut, r.Order, 0, 0, 87);
     end

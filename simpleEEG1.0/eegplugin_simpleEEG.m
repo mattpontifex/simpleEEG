@@ -71,6 +71,7 @@ function eegplugin_simpleEEG(fig,try_strings,catch_strings)
     uimenu( submenu, 'label', 'Baseline Correct ERP', 'separator','off','callback', '[ERP ALLERP LASTCOM]=pop_simplebaselinecorrect(ERP, ALLERP);');
     uimenu( submenu, 'label', 'Filter Data', 'separator','off','callback', '[ERP ALLERP LASTCOM]=pop_simpleEEGfilter(ERP, ALLERP);');
     uimenu( submenu, 'label', 'Smooth ERP', 'separator','off','callback', '[ERP ALLERP LASTCOM]=pop_simplesmooth(ERP, ALLERP);');
+    uimenu( submenu, 'label', 'Collapse Channels', 'separator','off','callback', '[ERP LASTCOM]=pop_simplecollapsechannel(ERP);');
     uimenu( submenu, 'label', 'Subtract ERP', 'separator','off','callback', '[ERP LASTCOM]=pop_simplesubtractERP(ERP);');
     uimenu( submenu, 'label', 'Compute ERP Spectral Power', 'separator','off','callback', '[ERP LASTCOM]=pop_simplespectral(ERP);');
     uimenu( submenu, 'label', 'Grand Average ALLERP', 'separator','off','callback', '[ERP LASTCOM]=pop_xgrandaverage(ALLERP);');
