@@ -1,12 +1,17 @@
-function [OUTEEG, com] = pop_visualinspecttrials(INEEG)
 
+function [OUTEEG, com] = pop_visualinspecttrials(INEEG)
+    
+    cb_chansel1 = 'tmpchanlocs = EEG(1).chanlocs; [tmp tmpval] = pop_chansel({tmpchanlocs.labels}, ''withindex'', ''on'', ''selectionmode'', ''multiple''); set(findobj(gcbf, ''tag'', ''Channels''   ), ''string'',tmpval); clear tmpchanlocs tmp tmpval';
+    
     g1 = [0.5 0.5 ];
     g2 = [0.35 0.15 0.35 0.15];
+    g3 = [0.3 0.2 0.1];
     s1 = [1];
-    geometry = { g1 s1 g2 s1 g1 s1 g1 s1 g1 s1 s1 s1 s1 s1 s1 s1 s1 s1 };
+    geometry = { g3 s1 g2 s1 g1 s1 g1 s1 g1 s1 s1 s1 s1 s1 s1 s1 s1 s1 };
     uilist = { ...
-          { 'Style', 'text', 'string', 'Channels to Average Across'} ...
-          { 'Style', 'edit', 'string', 'CZ, CPZ, PZ' 'tag' 'Channels'  } ...
+          { 'Style', 'text', 'string', 'Select channels to Average Across:'} ...
+          { 'Style', 'edit', 'string', '' 'tag' 'Channels' } ...
+          { 'Style' 'pushbutton' 'string' '...' 'callback' cb_chansel1 'tag' 'refbr' } ...
           ...
           { } ...
           ...
@@ -52,7 +57,7 @@ function [OUTEEG, com] = pop_visualinspecttrials(INEEG)
  
       [ tmp1 tmp2 strhalt structout ] = inputgui( geometry, uilist, 'pophelp(''pop_visualinspecttrials'');', 'Visually Inspect EEG trials -- pop_visualinspecttrials');
       if ~isempty(structout)
-          structout.Channels = strsplit(structout.Channels,',');
+          structout.Channels = strsplit(structout.Channels,[" ",","]);
           structout.Channels2 = sprintf('''%s''', strtrim(structout.Channels{1}));
           if (size(structout.Channels,2) > 1)
               for rC = 2:size(structout.Channels,2)
@@ -79,14 +84,11 @@ function [OUTEEG, com] = pop_visualinspecttrials(INEEG)
           end
           com = sprintf('\nRunning:\n\t%s = visualinspecttrials(%s, ''Channels'', {%s}, ''Rows'', %d, ''Columns'', %d, ''Polarity'', ''%s'', ''Average'', ''%s'', ''Smooth'', ''%s'');\n', inputname(1), inputname(1),  structout.Channels2, structout.Rows, structout.Columns, structout.Polarity, structout.Average, structout.Smooth);
           disp(com)
-          
-          [T, INEEG] = evalc('pop_syncroartifacts(INEEG, ''Direction'', ''bidirectional'')'); %synchronize artifact databases
           OUTEEG = visualinspecttrials(INEEG, 'Channels', structout.Channels, 'Rows',  structout.Rows, 'Columns',  structout.Columns, 'Polarity', structout.Polarity, 'Average', structout.Average, 'Smooth', structout.Smooth);
           disp('Updated EEG.reject.rejmanual.')
-          [T, OUTEEG] = evalc('pop_syncroartifacts(OUTEEG, ''Direction'', ''eeglab2erplab'')'); %synchronize artifact databases
       else
           OUTEEG = INEEG;
           com = '';
       end
-
+ 
 end
