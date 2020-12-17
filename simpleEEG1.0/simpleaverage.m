@@ -35,13 +35,12 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     ERP.ntrials.rejected = sum(EEG.reject.rejmanual);
     ERP.pexcluded  = round((sum(ERP.ntrials.rejected)/(sum(ERP.ntrials.accepted)+sum(ERP.ntrials.rejected)))*100,1);
     ERP.times = EEG.times;
-    
-    % in case channel labels are empty - shouldnt be possible but pulled from averager
-    if isempty(ERP.chanlocs)
-        for cc = 1:ERP.nchan
-            ERP.chanlocs(cc).labels = ['Ch:' num2str(cc)];
-        end
-    end
+    ERP.chanlocs = EEG.chanlocs;
+    ERP.srate = EEG.srate;
+    ERP.nchan = EEG.nchan;
+    ERP.pnts = EEG.pnts;
+    ERP.xmin = EEG.xmin;
+    ERP.xmax = EEG.xmax;
     
     acceptedepochs = find([EEG.reject.rejmanual] == 0); % find accepted trials
     epochdataframe = EEG.data(:,:,acceptedepochs); % channel x time x accepted epochs
