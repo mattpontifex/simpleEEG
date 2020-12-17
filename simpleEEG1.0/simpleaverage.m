@@ -68,8 +68,11 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     ERP.peaks = [];
     ERP.peakdata = struct('Channel', [], 'Time', [], 'Latency', [], 'Label', []);
     
+    ERP.nbin = size(ERP.bindata,3);
+    ERP.bindescr = {'bin'};
+    ERP.nchan = size(ERP.bindata,1); 
+    
     com = sprintf('ERP = simpleaverage(%s, ''Method'', ''%s'', ''Variance'', ''%s'');', inputname(1), r(1).Method, r(1).Variance);
     ERP.history = sprintf('%s\n%s', ERP.history, com);
  
 end
-
