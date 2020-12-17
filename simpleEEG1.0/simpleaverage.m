@@ -19,7 +19,7 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     try, r.Sync; catch, r(1).Sync = 'True'; end
     
     % make sure everything is up to date
-    if strcmpri(r(1).Sync, 'True')
+    if strcmpi(r(1).Sync, 'True')
         try
             EEG = simplesyncartifacts(EEG, 'Direction', 'bidirectional');
         catch
