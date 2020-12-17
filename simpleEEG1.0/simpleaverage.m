@@ -18,7 +18,11 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     try, r.Variance; catch, r(1).Variance = 'SE'; end
     
     % make sure everything is up to date
-    EEG = simplesyncartifacts(EEG, 'Direction', 'bidirectional');
+    try
+        EEG = simplesyncartifacts(EEG, 'Direction', 'bidirectional');
+    catch
+        booler = 1;
+    end
     EEG = eeg_checkset(EEG);
     ERP = buildERPstruct(EEG); %nchan, nbin, pnts, srate, xmin,xmax,times,chanlocs are all automatically extracted
     ERP.erpname = EEG.setname;
@@ -65,3 +69,4 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     ERP.history = sprintf('%s\n%s', ERP.history, com);
  
 end
+
