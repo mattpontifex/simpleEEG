@@ -16,12 +16,15 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     end
     try, r.Method; catch, r(1).Method = 'Mean'; end
     try, r.Variance; catch, r(1).Variance = 'SE'; end
+    try, r.Sync; catch, r(1).Sync = 'True'; end
     
     % make sure everything is up to date
-    try
-        EEG = simplesyncartifacts(EEG, 'Direction', 'bidirectional');
-    catch
-        booler = 1;
+    if strcmpri(r(1).Sync, 'True')
+        try
+            EEG = simplesyncartifacts(EEG, 'Direction', 'bidirectional');
+        catch
+            booler = 1;
+        end
     end
     EEG = eeg_checkset(EEG);
     ERP = buildERPstruct(EEG); %nchan, nbin, pnts, srate, xmin,xmax,times,chanlocs are all automatically extracted
