@@ -34,7 +34,7 @@ function [EEG] = visualinspecttrials(EEG, varargin)
 %       EEG = visualinspecttrials(EEG, 'Channels', {'CZ', 'CPZ', 'PZ'}, 'Rows', 3, 'Columns', 4, 'Average', 'True', 'Smooth', 'True', 'guiSize', [200,200,1600,800], 'guiFontSize', 8);
 %    
 %   Author: Matthew B. Pontifex, Health Behaviors and Cognition Laboratory, Michigan State University, August 5, 2014
-
+ 
     if ~isempty(varargin)
           r=struct(varargin{:});
     end
@@ -42,7 +42,7 @@ function [EEG] = visualinspecttrials(EEG, varargin)
     try, r.Rows; cRows = r.Rows; catch, cRows = 3; end
     try, r.Columns; cColumns = r.Columns; catch, cColumns = 4; end
     try, r.Polarity; Polarity = r.Polarity; catch, Polarity = 'Positive Down';  end
-    try, r.Average; Average = r.Average; catch, Average = 'False';  end
+    try, r.Average; Average = r.Average; catch, Average = 'True';  end
     try, r.Smooth; bolSmooth = r.Smooth; catch, bolSmooth = 'False'; end
     try, r.TrialColor; TrialColor = r.TrialColor; catch, TrialColor = [0 0.6 0]; end
     try, r.TrialWidth; TrialWidth = r.TrialWidth; catch, TrialWidth = 1.5; end
@@ -78,7 +78,11 @@ function [EEG] = visualinspecttrials(EEG, varargin)
     if (isempty(EEG.reject.rejmanual))
         EEG.reject.rejmanual = zeros(1,size(EEG.data,3));
     end
-    [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''bidirectional'')'); %synchronize artifact databases
+    try
+        [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''bidirectional'')'); %synchronize artifact databases
+    catch
+        booler = 1;
+    end
     
      % Identify what channel indices actually exist within the EEG set
     tempchinc = [];
@@ -157,7 +161,7 @@ function [EEG] = visualinspecttrials(EEG, varargin)
     
     % Create GUI window
     handles.fig1 = figure('Name','Visual Inspection','NumberTitle','off', 'Position',handles.pl.size, 'Color', handles.pl.color, 'MenuBar', 'none', 'KeyPressFcn', @keyPress);
-
+ 
     % Calculate Plot Characteristics
     handles.size.xsize = floor((handles.pl.size(3)-(handles.size.xpadding*(cColumns-1))-handles.size.xshift)/cColumns)-handles.size.xceilpadding;
     handles.size.ysize = floor((handles.pl.size(4)-(handles.size.ypadding*(cRows-1))-handles.size.yshift)/cRows)-handles.size.yceilpadding;
@@ -242,7 +246,6 @@ function [EEG] = visualinspecttrials(EEG, varargin)
     
     changeplot;
     uiwait(handles.fig1);
-    [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''eeglab2erplab'')'); %synchronize artifact databases
     
     function changeplot
         % Update text
@@ -307,8 +310,8 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         EEG.reject.rejmanual = zeros(size(EEG.reject.rejmanual));
         changeplot
     end
-
-
+ 
+ 
     function learnposbuttonCallback(hObject,eventdata,handles)
         
         % obtain average of currently accepted trials
@@ -388,7 +391,7 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         changeplot
         
     end
-
+ 
     function axisPress(hObject,eventdata,handles)
         if (EEG.reject.rejmanual(handles) == 0)
             EEG.reject.rejmanual(handles) = 1;
@@ -448,9 +451,12 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         outmatrix(isnan(outmatrix)) = 0;
     end
     function closefcn(hObject,eventdata,handles)
+        try
+            [T, EEG] = evalc('pop_syncroartifacts(EEG, ''Direction'', ''eeglab2erplab'')'); %synchronize artifact databases
+        catch
+            booler = 1;
+        end
         delete(hObject);
     end
 end
-
-
-
+ 
