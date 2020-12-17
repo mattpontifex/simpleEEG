@@ -1,3 +1,4 @@
+
 function [ ERP ] = simpleaverage( EEG, varargin)
 %   Computes the average ERP from an epoched EEG dataset.
 %
@@ -9,7 +10,7 @@ function [ ERP ] = simpleaverage( EEG, varargin)
 %   Example Code:
 %
 %       ERP = simpleaverage(EEG, 'Method', 'Mean', 'Variance', 'SE');
-
+ 
     if ~isempty(varargin)
              r=struct(varargin{:});
     end
@@ -26,7 +27,7 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     ERP.ntrials.accepted = sum(~EEG.reject.rejmanual);
     ERP.ntrials.rejected = sum(EEG.reject.rejmanual);
     ERP.pexcluded  = round((sum(ERP.ntrials.rejected)/(sum(ERP.ntrials.accepted)+sum(ERP.ntrials.rejected)))*100,1);
-    
+    ERP.times = EEG.times;
     
     % in case channel labels are empty - shouldnt be possible but pulled from averager
     if isempty(ERP.chanlocs)
@@ -50,7 +51,7 @@ function [ ERP ] = simpleaverage( EEG, varargin)
             for cPoints = 1:ERP.pnts
                  % number included
                 ERP.binerror(cChannels,cPoints) = ERP.binerror(cChannels,cPoints)/sqrt(sum(~isnan(squeeze(epochdataframe(cChannels,cPoints,:))))); % Divide each SD value by the square root of the number of included trials
-
+ 
             end
         end
     end
@@ -62,5 +63,5 @@ function [ ERP ] = simpleaverage( EEG, varargin)
     
     com = sprintf('ERP = simpleaverage(%s, ''Method'', ''%s'', ''Variance'', ''%s'');', inputname(1), r(1).Method, r(1).Variance);
     ERP.history = sprintf('%s\n%s', ERP.history, com);
-
+ 
 end
