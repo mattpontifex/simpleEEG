@@ -1,3 +1,4 @@
+
 function [EEG] = visualinspecttrials(EEG, varargin)
 %   Graphical user interface to allow for visual inspection of the inputted
 %   data. Trial data will show up as the Green lines, the average of all
@@ -39,12 +40,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
           r=struct(varargin{:});
     end
     try, r.Channels; temprefch = {r.Channels}; catch, error('Error at visualinspecttrials(). Missing information! Please input Channel Information.'); end
+    try, r.Channels2; temprefch2 = {r.Channels2}; catch, temprefch2 = {}; end
     try, r.Rows; cRows = r.Rows; catch, cRows = 3; end
     try, r.Columns; cColumns = r.Columns; catch, cColumns = 4; end
     try, r.Polarity; Polarity = r.Polarity; catch, Polarity = 'Positive Down';  end
     try, r.Average; Average = r.Average; catch, Average = 'True';  end
     try, r.Smooth; bolSmooth = r.Smooth; catch, bolSmooth = 'False'; end
     try, r.TrialColor; TrialColor = r.TrialColor; catch, TrialColor = [0 0.6 0]; end
+    try, r.TrialColor2; TrialColor2 = r.TrialColor2; catch, TrialColor2 = [0 0.5 0.9]; end
     try, r.TrialWidth; TrialWidth = r.TrialWidth; catch, TrialWidth = 1.5; end
     try, r.AverageColor; AverageColor = r.AverageColor; catch, AverageColor = [.8 .8 .8]; end
     try, r.AverageWidth; AverageWidth = r.AverageWidth; catch, AverageWidth = 2; end
@@ -114,17 +117,58 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         end
     end
     
+    if ~isempty(temprefch2)
+        tempchinc = [];
+        for cC = 1:numel(temprefch2)
+            for m=1:size(EEG.chanlocs, 2)
+                tempval = EEG.chanlocs(m).('labels');
+                if (strcmp(tempval,temprefch2(cC)) > 0)
+                    tempchinc(end+1) = m;
+                    break;
+                end
+            end
+        end
+        
+        inMat2 = zeros(size(EEG.data,3),size(EEG.data,2));
+        for cT = 1:size(EEG.data,3)
+            tempmat = zeros(numel(tempchinc),size(EEG.data,2));
+            for cC = 1:numel(tempchinc)
+                tempmat(cC,:) = EEG.data(tempchinc(cC),:,cT);
+            end
+            if (numel(tempchinc) > 1)
+                inMat2(cT,:) = nanmean(tempmat);
+            else
+                inMat2(cT,:) = tempmat;
+            end
+        end
+    end
+    
     if (strcmpi(bolSmooth, 'True'))
         for cC = 1:size(inMat,1)
             inMat(cC,:) = fastsmooth(inMat(cC,:),9,3,1);
+        end
+        if ~isempty(temprefch2)
+            for cC = 1:size(inMat2,1)
+                inMat2(cC,:) = fastsmooth(inMat2(cC,:),9,3,1);
+            end
         end
     elseif (strcmpi(bolSmooth, 'Max'))
         for cC = 1:size(inMat,1)
             inMat(cC,:) = fastsmooth(inMat(cC,:),25,3,1);
         end
+        if ~isempty(temprefch2)
+            for cC = 1:size(inMat2,1)
+                inMat2(cC,:) = fastsmooth(inMat2(cC,:),25,3,1);
+            end
+        end
     elseif (isnumeric(bolSmooth))
         for cC = 1:size(inMat,1)
             inMat(cC,:) = fastsmooth(inMat(cC,:),bolSmooth,3,1);
+        end
+        if ~isempty(temprefch2)
+            for cC = 1:size(inMat2,1)
+                inMat2(cC,:) = fastsmooth(inMat2(cC,:),bolSmooth,3,1);
+            end
         end
     end
     
@@ -132,16 +176,31 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         [Ytemp, Imin] = min(abs(EEG.times-XScale(1)));
         [Ytemp, Imax] = min(abs(EEG.times-XScale(2)));
         inMat = inMat(:,Imin:Imax);
+        if ~isempty(temprefch2)
+            inMat2 = inMat2(:,Imin:Imax);
+        end
         x = x(Imin:Imax);
     end
     
     inMat_Mean = subsetmean(inMat, EEG.reject.rejmanual);
     pOriginal_Mean = inMat_Mean;
+    if ~isempty(temprefch2)
+        inMat_Mean2 = subsetmean(inMat2, EEG.reject.rejmanual);
+        tempmat = inMat_Mean;
+        for cC = 1:length(inMat_Mean)
+            tempmat(cC) = mean([inMat_Mean(cC), inMat_Mean2(cC)],'omitnan');
+        end
+        inMat_Mean = tempmat;
+        pOriginal_Mean = tempmat;
+    end
     
     handles=struct;    %'Structure which stores all object handles
     handles.lin.width1 = TrialWidth;
     handles.lin.width2 = AverageWidth;
     handles.lin.color1 = TrialColor; % Trial
+    if ~isempty(temprefch2)
+        handles.lin.color12 = TrialColor2; % Trial
+    end
     handles.lin.color2 = AverageColor; % Average
     handles.pl.color = guiBackgroundColor;
     handles.hot.accept = handles.pl.color;
@@ -184,6 +243,10 @@ function [EEG] = visualinspecttrials(EEG, varargin)
             if ((currenttrial+celCount) <= size(inMat,1))
                 handles.(sprintf('r%dc%d',cR,cC)).axes = axes(handles.size.label,[cspace,rspace,handles.size.xsizeScaled,handles.size.ysizeScaled],'FontSize', handles.size.fSz);
                 handles.(sprintf('r%dc%d',cR,cC)).plot = plot(x,inMat((currenttrial+celCount),:),'LineWidth',handles.lin.width1,'Color',handles.lin.color1);  
+                if ~isempty(temprefch2)
+                    handles.(sprintf('twor%dc%d',cR,cC)).line = line(x,inMat2((currenttrial+celCount),:),'LineWidth',handles.lin.width1-0.5,'Color',handles.lin.color12); 
+                    uistack(handles.(sprintf('twor%dc%d',cR,cC)).line, 'down', 1);
+                end
                 if (strcmpi(Average, 'True') == 1)
                    handles.(sprintf('r%dc%d',cR,cC)).line = line(x,inMat_Mean,'LineWidth',handles.lin.width2, 'Color',handles.lin.color2);
                    uistack(handles.(sprintf('r%dc%d',cR,cC)).line, 'down', 1);
@@ -270,6 +333,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
             end
             if (strcmpi(Average, 'True') == 1)
                 inMat_Mean = subsetmean(inMat, EEG.reject.rejmanual);
+                if ~isempty(temprefch2)
+                    inMat_Mean2 = subsetmean(inMat2, EEG.reject.rejmanual);
+                    tempmat = inMat_Mean;
+                    for cC = 1:length(inMat_Mean)
+                        tempmat(cC) = mean([inMat_Mean(cC), inMat_Mean2(cC)],'omitnan');
+                    end
+                    inMat_Mean = tempmat;
+                end
             end
          % Determine plot color
            celCount = 0;
@@ -285,6 +356,9 @@ function [EEG] = visualinspecttrials(EEG, varargin)
                         end
                         set(handles.(sprintf('r%dc%d',cR,cC)).tN, 'String', num2str(currenttrial+celCount));
                         set(handles.(sprintf('r%dc%d',cR,cC)).plot, 'YData', inMat((currenttrial+celCount),:));
+                        if ~isempty(temprefch2)
+                            set(handles.(sprintf('twor%dc%d',cR,cC)).line, 'YData', inMat2((currenttrial+celCount),:));
+                        end
                         set(handles.(sprintf('r%dc%d',cR,cC)).axes, 'ButtonDownFcn', {@axisPress, (currenttrial+celCount)});
                         if (strcmpi(Average, 'True') == 1)
                              set(handles.(sprintf('r%dc%d',cR,cC)).line, 'YData', inMat_Mean);
@@ -316,6 +390,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         
         % obtain average of currently accepted trials
         inMat_Mean = subsetmean(inMat, EEG.reject.rejmanual);
+        if ~isempty(temprefch2)
+            inMat_Mean2 = subsetmean(inMat2, EEG.reject.rejmanual);
+            tempmat = inMat_Mean;
+            for cC = 1:length(inMat_Mean)
+                tempmat(cC) = mean([inMat_Mean(cC), inMat_Mean2(cC)],'omitnan');
+            end
+            inMat_Mean = tempmat;
+        end
         
         % obtain correlation between average and each trial currently being
         % displayed
@@ -333,6 +415,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
             catch
                boolerr = 1; 
             end
+            if ~isempty(temprefch2)
+                try
+                   [Rval2, Pval] = corrcoef([inMat_Mean; inMat2(cR,:)]'); % Compute correlation
+                   cormatrix(1,cR) = mean([cormatrix(1,cR), Rval2],'omitnan');
+                catch
+                    boolerr = 1; 
+                end
+            end
         end
         if ~isempty(find(cormatrix >= CorrLearnPos))
             EEG.reject.rejmanual(find(cormatrix >= CorrLearnPos)) = 0;
@@ -344,6 +434,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         
         % obtain average of currently accepted trials
         inMat_Mean = subsetmean(inMat, EEG.reject.rejmanual);
+        if ~isempty(temprefch2)
+            inMat_Mean2 = subsetmean(inMat2, EEG.reject.rejmanual);
+            tempmat = inMat_Mean;
+            for cC = 1:length(inMat_Mean)
+                tempmat(cC) = mean([inMat_Mean(cC), inMat_Mean2(cC)],'omitnan');
+            end
+            inMat_Mean = tempmat;
+        end
         
         % obtain correlation between average and each trial
         cormatrix = NaN(size(EEG.reject.rejmanual));
@@ -356,6 +454,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
             catch
                 boolerr = 1;
             end
+            if ~isempty(temprefch2)
+                try
+                   [Rval2, Pval] = corrcoef([inMat_Mean; inMat2(cR,:)]'); % Compute correlation
+                   cormatrix(1,cR) = mean([cormatrix(1,cR), Rval2],'omitnan');
+                catch
+                    boolerr = 1; 
+                end
+            end
         end
         if ~isempty(find(cormatrix >= CorrLearnPos))
             EEG.reject.rejmanual(find(cormatrix >= CorrLearnPos)) = 0;
@@ -367,6 +473,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
         
         % obtain average of currently accepted trials
         inMat_Mean = subsetmean(inMat, EEG.reject.rejmanual);
+        if ~isempty(temprefch2)
+            inMat_Mean2 = subsetmean(inMat2, EEG.reject.rejmanual);
+            tempmat = inMat_Mean;
+            for cC = 1:length(inMat_Mean)
+                tempmat(cC) = mean([inMat_Mean(cC), inMat_Mean2(cC)],'omitnan');
+            end
+            inMat_Mean = tempmat;
+        end
         
         % obtain correlation between average and each trial currently being
         % displayed
@@ -383,6 +497,14 @@ function [EEG] = visualinspecttrials(EEG, varargin)
                 corPmatrix(1,cR) = Pval(2,1); % Extract p value
             catch
                 boolerr = 1;
+            end
+            if ~isempty(temprefch2)
+                try
+                   [Rval2, Pval] = corrcoef([inMat_Mean; inMat2(cR,:)]'); % Compute correlation
+                   cormatrix(1,cR) = mean([cormatrix(1,cR), Rval2],'omitnan');
+                catch
+                    boolerr = 1; 
+                end
             end
         end
         if ~isempty(find(cormatrix <= CorrLearnNeg))
